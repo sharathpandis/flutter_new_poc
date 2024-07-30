@@ -91,20 +91,49 @@ class ChatService {
   }
 
   Stream<QuerySnapshot> getMessages(
-      String userId, senderId, int msgCount, bool typing) {
+      String userId, senderId, int msgCount, DocumentSnapshot? lastDocument) {
     List<String> ids = [userId, senderId];
     ids.sort();
     String chatRoomId = ids.join('_');
     // getDocumentSnapshots(userId, senderId, typing);
+    Query<Map<String, dynamic>> messages;
+
+    if (lastDocument == null) {
+      messages = _getNewMessages(chatRoomId);
+      return messages.snapshots();
+    } else {
+      messages = _getOlderMessages(chatRoomId, lastDocument);
+      return messages.snapshots();
+    }
+    // return _firestore
+    //     .collection("chat_rooms")
+    //     .doc(chatRoomId)
+    //     .collection("messages")
+    //     .orderBy("timestamp", descending: false)
+    //     .limitToLast(msgCount)
+    //     .snapshots();
+  }
+
+  Query<Map<String, dynamic>> _getNewMessages(String chatRoomId) {
     return _firestore
         .collection("chat_rooms")
         .doc(chatRoomId)
         .collection("messages")
-        .orderBy("timestamp", descending: false)
-        .limitToLast(msgCount)
-        .snapshots();
+        .orderBy("timestamp", descending: true)
+        .limit(20);
   }
 
+  Query<Map<String, dynamic>> _getOlderMessages(
+      String chatRoomId, DocumentSnapshot? lastDocument) {
+    print("fetchold $lastDocument");
+    return _firestore
+        .collection("chat_rooms")
+        .doc(chatRoomId)
+        .collection("messages")
+        .orderBy('timestamp', descending: true)
+        .startAfterDocument(lastDocument!)
+        .limit(20);
+  }
   // Future<Map<String, dynamic>> getDocumentSnapshots(
   //   String userId,
   //   senderId,

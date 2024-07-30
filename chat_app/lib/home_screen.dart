@@ -1,4 +1,5 @@
 import 'package:chat_app/chat/chat_screen.dart';
+import 'package:chat_app/chat/new_chat_screen.dart';
 import 'package:chat_app/service/auth_service.dart';
 import 'package:chat_app/service/chat_service.dart';
 import 'package:flutter/material.dart';
@@ -58,9 +59,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _userClicked(String userEmail, String userId) {
     final pageRoute = MaterialPageRoute(builder: (context) {
-      return ChatScreen(
-        userEmail: userEmail,
+      // return ChatScreenView(
+      //   userEmail: userEmail,
+      //   userId: userId,
+      // );5
+      // return ChatScreen();
+      return NewChatScreen(
         userId: userId,
+        userEmail: userEmail,
       );
     });
     Navigator.push(context, pageRoute);
